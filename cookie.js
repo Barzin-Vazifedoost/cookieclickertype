@@ -1,164 +1,401 @@
-let user_click_power = 1;
-let score = 0;
+/*
+ * Star Collector - An Incremental Game
+ * CS 1XD3 Lab 5.2: The JS Pair Assignment
+ * Authors: [Your Names Here]
+ * Date: February 2026
+ * Description: Game logic for Star Collector. Uses model/view separation:
+ *   - Model: state variables track game data
+ *   - View: DOM elements display the model to the user
+ * All event handlers use addEventListener inside a load event listener.
+ */
 
-const canvas = document.getElementById("myCanvas");
-const button = document.getElementById("Button");
-const ctx = canvas.getContext("2d");
+window.addEventListener("load", function () {
 
+    // ===========================
+    // MODEL - Game State Variables
+    // ===========================
 
+    let score = 0;            // current stars the player has
+    let totalStars = 0;       // lifetime stars earned (for rewards)
+    let clickPower = 1;       // stars gained per click
+    let upgradesBought = 0;   // total upgrades purchased
+    let autoClickTimer = null; // reference to the auto-click interval
+    let autoClickSpeed = 0;   // current auto-click interval in ms (0 = off)
+    let satelliteLevel = 0;   // how many times satellite has been purchased
 
-// Define circle properties
-const circleX = 100;
-const circleY = 100;
-const radius = 50;
-const color = "brown";
-
-const upgrades = {
-    upgrade1: {
-        name: "Upgrade #1",
-        cost: 10,
-        power: 1
-    },
-    upgrade2: {
-        name: "Upgrade #2",
-        cost: 50,
-        power: 5 
-    },
-    upgrade3: {
-        name: "Upgrade #3",
-        cost: 200,
-        power: 20
-    },
-    upgrade4: {
-        name: "Upgrade #4",
-        cost: 1000,
-        power: 100
-    }
-
-
-    
-}
-
-function drawScoreText() {
-    // Draw just the score text
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.fillText(`Score: ${score}`, 8, 20);
-}
-
-
-function drawClickPower() {
-    // Draw just the click power text
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.fillText(`Click Power: ${user_click_power}`, 8, 40);
-}
-
-function drawScore() {
-    // Clear the entire canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawUpgradeButton1();
-    drawUpgradeButton2();
-
-    
-    // Redraw the circle
-    ctx.fillStyle = color;
-    ctx.fill(circlePath);
-    
-
-    drawScoreText();
-
-    drawClickPower();
-}
-
-function drawUpgradeButton1() {
-    const buttonX = 200;
-    const buttonY = 50;
-    const buttonWidth = 100;
-    const buttonHeight = 50;
-
-    // Draw the upgrade button
-    ctx.fillStyle = "lightblue";
-    ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-
-    // Draw the upgrade text
-    ctx.font = "14px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText(upgrades.upgrade1.name, buttonX + 10, buttonY + 20);
-    ctx.fillText(`Cost: ${upgrades.upgrade1.cost}`, buttonX + 10, buttonY + 40);
-
-}
-
-function drawUpgradeButton2() {
-    const buttonX = 200;
-    const buttonY = 150;
-    const buttonWidth = 100;
-    const buttonHeight = 50;
-
-    // Draw the upgrade button
-    ctx.fillStyle = "lightblue";
-    ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-
-    // Draw the upgrade text
-    ctx.font = "14px Arial";
-    ctx.fillStyle = "black";
-    ctx.fillText(upgrades.upgrade2.name, buttonX + 10, buttonY + 20);
-    ctx.fillText(`Cost: ${upgrades.upgrade2.cost}`, buttonX + 10, buttonY + 40);
-}
-
-
-
-// Use Path2D for easier path management and click detection
-const circlePath = new Path2D();
-const upgrade1Path = new Path2D();
-const upgrade2Path = new Path2D();
-circlePath.arc(circleX, circleY, radius, 0, 2 * Math.PI); // Draw a full circle
-upgrade1Path.rect(200, 50, 100, 50); // Define the path for upgrade button 1
-upgrade2Path.rect(200, 150, 100, 50); // Define the path for upgrade button 2
-
-// Draw the circle on the canvas and initial score
-ctx.fillStyle = color;
-ctx.fill(circlePath);
-drawScore(); // Display initial score
-drawUpgradeButton1();
-drawUpgradeButton2();
-
-// Add click event listener to the canvas
-canvas.addEventListener("click", function(event) {
-    // Get mouse coordinates relative to the canvas
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-
-    if (ctx.isPointInPath(upgrade1Path, mouseX, mouseY)) {
-        console.log("Upgrade 1 triggered"); // Update the score display on the canvas
-        if (score >= upgrades.upgrade1.cost) {
-            score -= upgrades.upgrade1.cost;
-            user_click_power += upgrades.upgrade1.power; // Increase click power by the upgrade's power
-            drawScore(); // Update the score display on the canvas
-        } else {
-            console.log("Not enough score for Upgrade 1");
+    // Upgrade definitions (model)
+    // Each upgrade tracks its own cost which increases after purchase
+    let upgrades = [
+        {
+            id: "telescope",
+            name: "Telescope",
+            description: "+1 click power",
+            baseCost: 10,
+            cost: 10,
+            costMultiplier: 1.0012,
+            type: "click",
+            power: 1
+        },
+        {
+            id: "starmap",
+            name: "Star Map",
+            description: "+5 click power",
+            baseCost: 50,
+            cost: 50,
+            costMultiplier: 1.0012,
+            type: "click",
+            power: 5
+        },
+        {
+            id: "spaceprobe",
+            name: "Space Probe",
+            description: "+25 click power",
+            baseCost: 250,
+            cost: 250,
+            costMultiplier: 1.0012,
+            type: "click",
+            power: 25
+        },
+        {
+            id: "satellite",
+            name: "Satellite",
+            description: "Auto-collects stars (gets faster!)",
+            baseCost: 100,
+            cost: 100,
+            costMultiplier: 1.0012,
+            type: "auto",
+            // Auto-click intervals in ms for each purchase level
+            speeds: [2000, 1500, 1000, 700, 500, 350, 250]
         }
-        
+    ];
+
+    // Reward definitions (model)
+    // earned flag tracks whether each reward has been achieved
+    let rewards = [
+        {
+            id: "first-light",
+            name: "First Light",
+            description: "Collect 100 total stars",
+            icon: "\u2B50",
+            earned: false,
+            check: function () { return totalStars >= 100; }
+        },
+        {
+            id: "stargazer",
+            name: "Stargazer",
+            description: "Collect 1,000 total stars",
+            icon: "\u{1F31F}",
+            earned: false,
+            check: function () { return totalStars >= 1000; }
+        },
+        {
+            id: "nebula-hunter",
+            name: "Nebula Hunter",
+            description: "Collect 10,000 total stars",
+            icon: "\u{1F30C}",
+            earned: false,
+            check: function () { return totalStars >= 10000; }
+        },
+        {
+            id: "first-purchase",
+            name: "First Purchase",
+            description: "Buy your first upgrade",
+            icon: "\u{1F6D2}",
+            earned: false,
+            check: function () { return upgradesBought >= 1; }
+        },
+        {
+            id: "astronomer",
+            name: "Astronomer",
+            description: "Buy 10 upgrades total",
+            icon: "\u{1F52D}",
+            earned: false,
+            check: function () { return upgradesBought >= 10; }
+        },
+        {
+            id: "galaxy-brain",
+            name: "Galaxy Brain",
+            description: "Reach 50+ click power",
+            icon: "\u{1F9E0}",
+            earned: false,
+            check: function () { return clickPower >= 50; }
+        },
+        {
+            id: "automated",
+            name: "Automated",
+            description: "Purchase your first Satellite",
+            icon: "\u{1F6F0}",
+            earned: false,
+            check: function () { return satelliteLevel >= 1; }
+        }
+    ];
+
+    // Milestone thresholds for the progress bar
+    let milestones = [100, 1000, 10000, 100000, 1000000];
+
+    // ===========================
+    // VIEW - DOM Element References
+    // ===========================
+
+    let scoreDisplay = document.getElementById("score-display");
+
+    let clickPowerDisplay = document.getElementById("click-power-display");
+
+    let upgradesCountDisplay = document.getElementById("upgrades-count-display");
+
+    let autoSpeedDisplay = document.getElementById("auto-speed-display");
+
+    let progressFill = document.getElementById("progress-fill");
+
+    let progressText = document.getElementById("progress-text");
+
+    let upgradeList = document.getElementById("upgrade-list");
+
+    let rewardsList = document.getElementById("rewards-list");
+
+    let starButton = document.getElementById("star-button");
+
+    let clickFeedback = document.getElementById("click-feedback");
+
+    let helpBtn = document.getElementById("help-btn");
+
+    let helpOverlay = document.getElementById("help-overlay");
+
+    let helpCloseBtn = document.getElementById("help-close-btn");
+
+    let congratsPopup = document.getElementById("congrats-popup");
+
+    // ===========================
+    // VIEW - Render Functions
+    // ===========================
+
+    /** Updates all scoreboard displays from model variables */
+    function updateScoreboard() {
+        scoreDisplay.textContent = score.toLocaleString();
+        clickPowerDisplay.textContent = clickPower.toLocaleString();
+        upgradesCountDisplay.textContent = upgradesBought;
+
+        if (autoClickSpeed > 0) {
+            autoSpeedDisplay.textContent = (autoClickSpeed / 1000).toFixed(1) + "s";
+        } else {
+            autoSpeedDisplay.textContent = "Off";
+        }
+
+        updateProgressBar();
     }
 
-    if (ctx.isPointInPath(upgrade2Path, mouseX, mouseY)) {
-        console.log("Upgrade 2 triggered"); // Update the score display on the canvas
-        if (score >= upgrades.upgrade2.cost) {
-            score -= upgrades.upgrade2.cost;
-            user_click_power += upgrades.upgrade2.power; // Increase click power by the upgrade's power
-            drawScore(); // Update the score display on the canvas
-        } else {
-            console.log("Not enough score for Upgrade 2");
+    /** Updates the progress bar toward the next milestone */
+    function updateProgressBar() {
+        // Find the next milestone the player hasn't reached
+        let nextMilestone = milestones[milestones.length - 1];
+        let prevMilestone = 0;
+        for (let i = 0; i < milestones.length; i++) {
+            if (totalStars < milestones[i]) {
+                nextMilestone = milestones[i];
+                prevMilestone = i > 0 ? milestones[i - 1] : 0;
+                break;
+            }
+        }
+
+        let progressInRange = totalStars - prevMilestone;
+        let rangeSize = nextMilestone - prevMilestone;
+        let percentage = Math.min((progressInRange / rangeSize) * 100, 100);
+
+        progressFill.style.width = percentage + "%";
+        progressText.textContent = totalStars.toLocaleString() + " / " + nextMilestone.toLocaleString();
+    }
+
+    /** Renders all upgrade buttons from the upgrades model array */
+    function renderUpgrades() {
+        // Clear existing buttons
+        upgradeList.innerHTML = "";
+
+        for (let i = 0; i < upgrades.length; i++) {
+            let upgrade = upgrades[i];
+            let btn = document.createElement("button");
+            btn.className = "upgrade-btn";
+            btn.id = "upgrade-" + upgrade.id;
+
+            // Show different info for auto vs click upgrades
+            let info = upgrade.description;
+            if (upgrade.type === "auto" && satelliteLevel > 0) {
+                info = "Speeds up auto-collect!";
+            }
+
+            btn.innerHTML =
+                "<strong>" + upgrade.name + "</strong>" +
+                "<span class='upgrade-desc'>" + info + "</span>" +
+                "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
+
+            // Disable if player can't afford it
+            if (score < Math.floor(upgrade.cost)) {
+                btn.classList.add("disabled");
+            }
+
+            // Use a closure to capture the current index
+            (function (index) {
+                btn.addEventListener("click", function () {
+                    purchaseUpgrade(index);
+                });
+            })(i);
+
+            upgradeList.appendChild(btn);
         }
     }
 
-    if (ctx.isPointInPath(circlePath, mouseX, mouseY)) {
-        score+=user_click_power; // Increment score by user_click_power
-        console.log(score);
-        drawScore(); // Update the score display on the canvas
+    /** Renders all rewards (earned ones show their icon, unearned show a lock) */
+    function renderRewards() {
+        rewardsList.innerHTML = "";
+
+        for (let i = 0; i < rewards.length; i++) {
+            let reward = rewards[i];
+            let badge = document.createElement("div");
+            badge.className = "reward-badge";
+
+            if (reward.earned) {
+                badge.classList.add("earned");
+                badge.innerHTML =
+                    "<span class='reward-icon'>" + reward.icon + "</span>" +
+                    "<span class='reward-name'>" + reward.name + "</span>";
+            } else {
+                badge.innerHTML =
+                    "<span class='reward-icon locked'>\u{1F512}</span>" +
+                    "<span class='reward-name'>" + reward.name + "</span>";
+            }
+
+            badge.title = reward.description;
+            rewardsList.appendChild(badge);
+        }
     }
+
+    /** Shows a congratulations popup that disappears after 3 seconds */
+    function showCongrats(rewardName) {
+        congratsPopup.textContent = "Congratulations! You earned: " + rewardName + "!";
+        congratsPopup.classList.remove("hidden");
+        congratsPopup.classList.add("show");
+
+        setTimeout(function () {
+            congratsPopup.classList.remove("show");
+            congratsPopup.classList.add("hidden");
+        }, 3000);
+    }
+
+    /** Shows a brief +N feedback near the star when clicked */
+    function showClickFeedback() {
+        clickFeedback.textContent = "+" + clickPower;
+        clickFeedback.classList.remove("fade");
+        // Force reflow so the animation restarts
+        void clickFeedback.offsetWidth;
+        clickFeedback.classList.add("fade");
+    }
+
+    // ===========================
+    // CONTROLLER - Game Logic
+    // ===========================
+
+    /** Handles a click on the star - updates model then view */
+    function handleStarClick() {
+        // Update model
+        score += clickPower;
+        totalStars += clickPower;
+
+        // Update view
+        updateScoreboard();
+        renderUpgrades();
+        showClickFeedback();
+
+        // Check for newly earned rewards
+        checkRewards();
+    }
+
+    /** Handles purchasing an upgrade by index */
+    function purchaseUpgrade(index) {
+        let upgrade = upgrades[index];
+        let cost = Math.floor(upgrade.cost);
+
+        // Check if player can afford it
+        if (score < cost) {
+            return;
+        }
+
+        // Deduct cost from model
+        score -= cost;
+
+        // Apply upgrade effect to model
+        if (upgrade.type === "click") {
+            clickPower += upgrade.power;
+        } else if (upgrade.type === "auto") {
+            satelliteLevel++;
+            // Determine speed based on satellite level
+            let speedIndex = Math.min(satelliteLevel - 1, upgrade.speeds.length - 1);
+            let newSpeed = upgrade.speeds[speedIndex];
+
+            // Clear existing timer (only one auto-click timer allowed)
+            if (autoClickTimer !== null) {
+                clearInterval(autoClickTimer);
+            }
+
+            autoClickSpeed = newSpeed;
+
+            // Start new auto-click timer
+            autoClickTimer = setInterval(function () {
+                // Auto-click applies current click power
+                score += clickPower;
+                totalStars += clickPower;
+                updateScoreboard();
+                renderUpgrades();
+                checkRewards();
+            }, autoClickSpeed);
+        }
+
+        // Increase the cost for next purchase
+        upgrade.cost = upgrade.cost * upgrade.costMultiplier;
+        upgradesBought++;
+
+        // Update view
+        updateScoreboard();
+        renderUpgrades();
+        checkRewards();
+    }
+
+    /** Checks all rewards and triggers any newly earned ones */
+    function checkRewards() {
+        for (let i = 0; i < rewards.length; i++) {
+            if (!rewards[i].earned && rewards[i].check()) {
+                rewards[i].earned = true;
+                showCongrats(rewards[i].name);
+                renderRewards();
+            }
+        }
+    }
+
+    // ===========================
+    // EVENT LISTENERS
+    // ===========================
+
+    starButton.addEventListener("click", handleStarClick);
+
+    helpBtn.addEventListener("click", function () {
+        helpOverlay.classList.remove("hidden");
+    });
+
+    helpCloseBtn.addEventListener("click", function () {
+        helpOverlay.classList.add("hidden");
+    });
+
+    // Close help if clicking outside the help content
+    helpOverlay.addEventListener("click", function (event) {
+        if (event.target === helpOverlay) {
+            helpOverlay.classList.add("hidden");
+        }
+    });
+
+    // ===========================
+    // INITIAL RENDER
+    // ===========================
+
+    updateScoreboard();
+    renderUpgrades();
+    renderRewards();
+
 });
-
-
-

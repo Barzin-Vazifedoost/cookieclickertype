@@ -1,13 +1,105 @@
 <!DOCTYPE html>
+<!--
+    Star Collector - An Incremental Game
+    CS 1XD3 Lab 5.2: The JS Pair Assignment
+    Authors: [Your Names Here]
+    Date: February 2026
+    Description: An incremental game where the user collects stars
+    and purchases upgrades to increase their star collection rate.
+    All interaction is done through DOM manipulation.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Clickable Canvas Object</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Collector</title>
     <link rel="stylesheet" href="cookie.css">
-    
 </head>
 <body>
-    <canvas id="myCanvas" width="1000" height="800"></canvas>
+    <!-- Congratulations popup -->
+    <div id="congrats-popup" class="congrats-popup hidden"></div>
+
+    <header>
+        <h1>&#11088; Star Collector &#11088;</h1>
+        <button id="help-btn">Help</button>
+    </header>
+
+    <!-- Help overlay -->
+    <div id="help-overlay" class="help-overlay hidden">
+        <div class="help-content">
+            <h2>How to Play</h2>
+            <p>Click the big star to collect stars! Spend your stars on upgrades to collect even faster.</p>
+            <h3>Upgrades</h3>
+            <ul>
+                <li><strong>Telescope</strong> &mdash; +1 click power. Base cost: 10 stars.</li>
+                <li><strong>Star Map</strong> &mdash; +5 click power. Base cost: 50 stars.</li>
+                <li><strong>Space Probe</strong> &mdash; +25 click power. Base cost: 250 stars.</li>
+                <li><strong>Satellite</strong> &mdash; Starts auto-collecting, then speeds it up each purchase. Base cost: 100 stars.</li>
+            </ul>
+            <h3>Rewards</h3>
+            <ul>
+                <li>&#127942; <strong>First Light</strong> &mdash; Collect 100 total stars.</li>
+                <li>&#127942; <strong>Stargazer</strong> &mdash; Collect 1,000 total stars.</li>
+                <li>&#127942; <strong>Nebula Hunter</strong> &mdash; Collect 10,000 total stars.</li>
+                <li>&#127942; <strong>First Purchase</strong> &mdash; Buy your first upgrade.</li>
+                <li>&#127942; <strong>Astronomer</strong> &mdash; Buy 10 upgrades total.</li>
+                <li>&#127942; <strong>Galaxy Brain</strong> &mdash; Reach 50+ click power.</li>
+                <li>&#127942; <strong>Automated</strong> &mdash; Buy your first Satellite.</li>
+            </ul>
+            <button id="help-close-btn">Close</button>
+        </div>
+    </div>
+
+    <main>
+        <!-- Click Area -->
+        <section id="click-area">
+            <h2>Click to Collect</h2>
+            <div id="star-button">&#11088;</div>
+            <p id="click-feedback"></p>
+        </section>
+
+        <!-- Scoreboard -->
+        <section id="scoreboard">
+            <h2>Scoreboard</h2>
+            <div class="stat">
+                <span class="stat-label">Stars</span>
+                <span id="score-display" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Click Power</span>
+                <span id="click-power-display" class="stat-value">1</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Upgrades Bought</span>
+                <span id="upgrades-count-display" class="stat-value">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Auto-Collect</span>
+                <span id="auto-speed-display" class="stat-value">Off</span>
+            </div>
+            <!-- Visual progress bar -->
+            <div class="progress-container">
+                <div class="progress-label">Progress to next milestone</div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="progress-text" class="progress-text">0 / 100</div>
+            </div>
+        </section>
+
+        <!-- Upgrade Area -->
+        <section id="upgrade-area">
+            <h2>Upgrades</h2>
+            <div id="upgrade-list"></div>
+        </section>
+
+        <!-- Rewards Area -->
+        <section id="rewards-area">
+            <h2>Rewards</h2>
+            <div id="rewards-list"></div>
+        </section>
+    </main>
+
     <script src="cookie.js"></script>
 </body>
 </html>
