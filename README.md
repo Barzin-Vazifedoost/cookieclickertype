@@ -13,18 +13,17 @@ A simple star clicker game built with HTML5, CSS and JavaScript.
 - Interactive star clicking
 - Multiple upgrade options with increasing costs and power
 - Real-time score display
-- Canvas-based graphics
 
 ## How to Run
 
-1. Open `cookie.html` in your web browser
+1. Open `star.html` in your web browser
 2. Start clicking the star!
 
 ## Files
 
-- `cookie.html` - Main HTML file
-- `cookie.js` - Game logic and functionality
-- `cookie.css` - Styling (if present)
+- `star.html` - Main HTML file
+- `star.js` - Game logic and functionality
+- `star.css` - Styling (if present)
 - `assets/` - Game assets (images, etc.)
 - `scripts/` - Additional scripts
 - `docs/` - Documentation
