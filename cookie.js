@@ -33,7 +33,7 @@ window.addEventListener("load", function () {
             art: "  /--\\\n  |  |\n  |  |\n  \\__/",
             baseCost: 10,
             cost: 10,
-            costMultiplier: 1.0012,
+            costMultiplier: 1.15,
             type: "click",
             power: 1
         },
@@ -44,7 +44,7 @@ window.addEventListener("load", function () {
             art: " [====]\n [ :: ]\n [____]",
             baseCost: 50,
             cost: 50,
-            costMultiplier: 1.0012,
+            costMultiplier: 1.25,
             type: "click",
             power: 5
         },
@@ -55,7 +55,7 @@ window.addEventListener("load", function () {
             art: "  \_!_\n |___|\n  / \\",
             baseCost: 250,
             cost: 250,
-            costMultiplier: 1.0012,
+            costMultiplier: 1.35,
             type: "click",
             power: 25
         },
@@ -66,7 +66,7 @@ window.addEventListener("load", function () {
             art: "   _ \n  / \\\n | - |\n/_____\\",
             baseCost: 1000,
             cost: 1000,
-            costMultiplier: 1.0015,
+            costMultiplier: 1.40,
             type: "click",
             power: 100
         },
@@ -77,7 +77,7 @@ window.addEventListener("load", function () {
             art: " ( @ ) \n  /|\\ \n /_|_\\\n/__|__\\",
             baseCost: 5000,
             cost: 5000,
-            costMultiplier: 1.0018,
+            costMultiplier: 1.50,
             type: "click",
             power: 500
         },
@@ -88,7 +88,7 @@ window.addEventListener("load", function () {
             art: "   /\\\n  |--|\n /|__|\\\n/_|__|_\\\n",
             baseCost: 25000,
             cost: 25000,
-            costMultiplier: 1.002,
+            costMultiplier: 1.65,
             type: "click",
             power: 2500
         },
@@ -99,10 +99,8 @@ window.addEventListener("load", function () {
             art: "  _|_  \n-[_I_]-\n  / \\  ",
             baseCost: 100,
             cost: 100,
-            costMultiplier: 1.0012,
+            costMultiplier: 1.80,
             type: "auto",
-            // Auto-click intervals in ms for each purchase level
-            speeds: [2000, 1500, 1000, 700, 500, 350, 250]
         }
     ];
 
@@ -246,7 +244,10 @@ window.addEventListener("load", function () {
     // VIEW - Render Functions
     // ===========================
 
-    /** Updates all scoreboard displays from model variables */
+    /**
+    * Updates all scoreboard displays to reflect the current model state.
+    * Called after any action that changes score, clickPower, or autoClickSpeed.
+    */
     function updateScoreboard() {
         scoreDisplay.textContent = score.toLocaleString();
         clickPowerDisplay.textContent = clickPower.toLocaleString();
@@ -261,7 +262,10 @@ window.addEventListener("load", function () {
         updateProgressBar();
     }
 
-    /** Updates the progress bar toward the next milestone */
+    /**
+    * Updates the progress bar toward the next star milestone.
+    * Reads totalStars and finds the nearest upcoming milestone to display progress.
+    */
     function updateProgressBar() {
         // Find the next milestone the player hasn't reached
         let nextMilestone = milestones[milestones.length - 1];
@@ -282,7 +286,9 @@ window.addEventListener("load", function () {
         progressText.textContent = totalStars.toLocaleString() + " / " + nextMilestone.toLocaleString();
     }
 
-    /** Renders all upgrade buttons from the upgrades model array */
+    /**
+    * Renders all upgrade buttons into the upgrade list from the upgrades array. Clears and rebuilds the list each call to reflect current costs and affordability.
+    */
     function renderUpgrades() {
         // Clear existing buttons
         upgradeList.innerHTML = "";
@@ -300,10 +306,10 @@ window.addEventListener("load", function () {
             }
 
             btn.innerHTML =
-            "<pre class='upgrade-art'>" + upgrade.art + "</pre>" +
-            "<strong>" + upgrade.name + "</strong>" +
-            "<span class='upgrade-desc'>" + info + "</span>" +
-            "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
+                "<pre class='upgrade-art'>" + upgrade.art + "</pre>" +
+                "<strong>" + upgrade.name + "</strong>" +
+                "<span class='upgrade-desc'>" + info + "</span>" +
+                "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
 
             // Disable if player can't afford it
             if (score < Math.floor(upgrade.cost)) {
@@ -321,7 +327,10 @@ window.addEventListener("load", function () {
         }
     }
 
-    /** Renders all rewards (earned ones show their icon, unearned show a lock) */
+    /**
+    * Renders all reward badges into the rewards list from the rewards array.
+    * Earned rewards show their icon; unearned rewards show a lock icon.
+    */
     function renderRewards() {
         rewardsList.innerHTML = "";
 
@@ -346,7 +355,12 @@ window.addEventListener("load", function () {
         }
     }
 
-    /** Shows a congratulations popup that disappears after 3 seconds */
+    /**
+    * Displays a congratulations popup for a newly earned reward.
+    * The popup disappears automatically after 3 seconds.
+    *
+    * @param {String} rewardName - The name of the reward that was earned.
+    */
     function showCongrats(rewardName) {
         congratsPopup.textContent = "Congratulations! You earned: " + rewardName + "!";
         congratsPopup.classList.remove("hidden");
@@ -358,7 +372,10 @@ window.addEventListener("load", function () {
         }, 3000);
     }
 
-    /** Shows a brief +N feedback near the star when clicked */
+    /**
+    * Displays a brief animated feedback message near the star button.
+    * Uses the current clickPower value to show how many stars were gained.
+    */
     function showClickFeedback() {
         clickFeedback.textContent = "+" + clickPower;
         clickFeedback.classList.remove("fade");
@@ -371,7 +388,10 @@ window.addEventListener("load", function () {
     // CONTROLLER - Game Logic
     // ===========================
 
-    /** Handles a click on the star - updates model then view */
+    /**
+    * Handles a player click on the star button.
+    * Adds clickPower to score and totalStars, then updates the view and checks rewards.
+    */
     function handleStarClick() {
         // Update model
         score += clickPower;
@@ -386,7 +406,12 @@ window.addEventListener("load", function () {
         checkRewards();
     }
 
-    /** Handles purchasing an upgrade by index */
+    /**
+    * Handles purchasing an upgrade at the given index in the upgrades array.
+    * Deducts the cost, applies the upgrade effect, increases future cost, and updates the view.
+    *
+    * @param {Number} index - The index of the upgrade in the upgrades array.
+    */
     function purchaseUpgrade(index) {
         let upgrade = upgrades[index];
         let cost = Math.floor(upgrade.cost);
@@ -405,8 +430,7 @@ window.addEventListener("load", function () {
         } else if (upgrade.type === "auto") {
             satelliteLevel++;
             // Determine speed based on satellite level
-            let speedIndex = Math.min(satelliteLevel - 1, upgrade.speeds.length - 1);
-            let newSpeed = upgrade.speeds[speedIndex];
+            let newSpeed = Math.max(5, 2000 / Math.pow(satelliteLevel, 0.97));
 
             // Clear existing timer (only one auto-click timer allowed)
             if (autoClickTimer !== null) {
@@ -421,7 +445,6 @@ window.addEventListener("load", function () {
                 score += clickPower;
                 totalStars += clickPower;
                 updateScoreboard();
-                renderUpgrades();
                 checkRewards();
             }, autoClickSpeed);
         }
@@ -436,7 +459,10 @@ window.addEventListener("load", function () {
         checkRewards();
     }
 
-    /** Checks all rewards and triggers any newly earned ones */
+    /**
+    * Checks all rewards to see if any have been newly earned.
+    * Triggers a congratulations popup and re-renders rewards for any newly earned ones.
+    */
     function checkRewards() {
         for (let i = 0; i < rewards.length; i++) {
             if (!rewards[i].earned && rewards[i].check()) {

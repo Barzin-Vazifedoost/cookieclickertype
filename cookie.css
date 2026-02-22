@@ -81,7 +81,7 @@ section h2 {
     margin-bottom: 15px;
     font-size: 1.2rem;
     border-bottom: 1px solid #2a2f6e;
-    padding-bottom: 8px; 
+    padding-bottom: 8px;
     text-align: center;
 }
 
@@ -129,6 +129,7 @@ section h2 {
         opacity: 1;
         transform: translateY(0);
     }
+
     100% {
         opacity: 0;
         transform: translateY(-20px);
@@ -269,11 +270,12 @@ section h2 {
    Rewards Area
    =========================== */
 
-   #rewards-area {
+#rewards-area {
     grid-column: 2 / 3;
     display: flex;
     flex-direction: column;
-    height: 100%; /* Force the section to fill the grid height */
+    height: 100%;
+    /* Force the section to fill the grid height */
 }
 
 #rewards-list {
@@ -284,7 +286,8 @@ section h2 {
     gap: 15px;
     justify-items: center;
     align-items: center;
-    flex-grow: 1; /* Pushes the grid to use all available vertical space */
+    flex-grow: 1;
+    /* Pushes the grid to use all available vertical space */
     padding: 10px 0;
 }
 
@@ -293,7 +296,8 @@ section h2 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100px; /* Slightly larger to fill the space better */
+    width: 100px;
+    /* Slightly larger to fill the space better */
     height: 100px;
     background-color: #1c2060;
     border: 2px solid #2a2f6e;
@@ -359,6 +363,7 @@ section h2 {
         opacity: 0;
         transform: translateX(-50%) translateY(-20px);
     }
+
     100% {
         opacity: 1;
         transform: translateX(-50%) translateY(0);

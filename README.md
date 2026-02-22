@@ -1,16 +1,16 @@
-# Cookie Clicker Game
+# Star Clicker Game
 
-A simple cookie clicker game built with HTML5 Canvas and JavaScript.
+A simple star clicker game built with HTML5, CSS and JavaScript.
 
 ## How to Play
 
-1. Click the cookie to earn points
+1. Click the star to earn points
 2. Use points to buy upgrades that increase your clicking power
 3. Keep clicking and upgrading to maximize your score!
 
 ## Features
 
-- Interactive cookie clicking
+- Interactive star clicking
 - Multiple upgrade options with increasing costs and power
 - Real-time score display
 - Canvas-based graphics
@@ -18,7 +18,7 @@ A simple cookie clicker game built with HTML5 Canvas and JavaScript.
 ## How to Run
 
 1. Open `cookie.html` in your web browser
-2. Start clicking the cookie!
+2. Start clicking the star!
 
 ## Files
 
