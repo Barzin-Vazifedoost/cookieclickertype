@@ -30,6 +30,7 @@ window.addEventListener("load", function () {
             id: "telescope",
             name: "Telescope",
             description: "+1 click power",
+            art: "  /--\\\n  |  |\n  |  |\n  \\__/",
             baseCost: 10,
             cost: 10,
             costMultiplier: 1.0012,
@@ -40,6 +41,7 @@ window.addEventListener("load", function () {
             id: "starmap",
             name: "Star Map",
             description: "+5 click power",
+            art: " [====]\n [ :: ]\n [____]",
             baseCost: 50,
             cost: 50,
             costMultiplier: 1.0012,
@@ -50,6 +52,7 @@ window.addEventListener("load", function () {
             id: "spaceprobe",
             name: "Space Probe",
             description: "+25 click power",
+            art: "  \_!_\n |___|\n  / \\",
             baseCost: 250,
             cost: 250,
             costMultiplier: 1.0012,
@@ -57,9 +60,43 @@ window.addEventListener("load", function () {
             power: 25
         },
         {
+            id: "observatory",
+            name: "Observatory",
+            description: "+100 click power",
+            art: "   _ \n  / \\\n | - |\n/_____\\",
+            baseCost: 1000,
+            cost: 1000,
+            costMultiplier: 1.0015,
+            type: "click",
+            power: 100
+        },
+        {
+            id: "galactic-atlas",
+            name: "Galactic Atlas",
+            description: "+500 click power",
+            art: " ( @ ) \n  /|\\ \n /_|_\\\n/__|__\\",
+            baseCost: 5000,
+            cost: 5000,
+            costMultiplier: 1.0018,
+            type: "click",
+            power: 500
+        },
+        {
+            id: "star-ship",
+            name: "Star Ship",
+            description: "+2,500 click power",
+            art: "   /\\\n  |--|\n /|__|\\\n/_|__|_\\\n",
+            baseCost: 25000,
+            cost: 25000,
+            costMultiplier: 1.002,
+            type: "click",
+            power: 2500
+        },
+        {
             id: "satellite",
             name: "Satellite",
             description: "Auto-collects stars (gets faster!)",
+            art: "  _|_  \n-[_I_]-\n  / \\  ",
             baseCost: 100,
             cost: 100,
             costMultiplier: 1.0012,
@@ -97,6 +134,22 @@ window.addEventListener("load", function () {
             check: function () { return totalStars >= 10000; }
         },
         {
+            id: "supernova",
+            name: "Supernova",
+            description: "Collect 100,000 total stars",
+            icon: "\u{1F4A5}",
+            earned: false,
+            check: function () { return totalStars >= 100000; }
+        },
+        {
+            id: "galactic-emperor",
+            name: "Galactic Emperor",
+            description: "Collect 1,000,000 total stars",
+            icon: "\u{1F451}",
+            earned: false,
+            check: function () { return totalStars >= 1000000; }
+        },
+        {
             id: "first-purchase",
             name: "First Purchase",
             description: "Buy your first upgrade",
@@ -113,6 +166,22 @@ window.addEventListener("load", function () {
             check: function () { return upgradesBought >= 10; }
         },
         {
+            id: "collector",
+            name: "Collector",
+            description: "Buy 25 upgrades total",
+            icon: "\u{1F4E6}",
+            earned: false,
+            check: function () { return upgradesBought >= 25; }
+        },
+        {
+            id: "tycoon",
+            name: "Tycoon",
+            description: "Buy 50 upgrades total",
+            icon: "\u{1F4B8}",
+            earned: false,
+            check: function () { return upgradesBought >= 50; }
+        },
+        {
             id: "galaxy-brain",
             name: "Galaxy Brain",
             description: "Reach 50+ click power",
@@ -121,17 +190,25 @@ window.addEventListener("load", function () {
             check: function () { return clickPower >= 50; }
         },
         {
+            id: "click-master",
+            name: "Click Master",
+            description: "Reach 100+ click power",
+            icon: "\u{26A1}",
+            earned: false,
+            check: function () { return clickPower >= 100; }
+        },
+        {
             id: "automated",
             name: "Automated",
             description: "Purchase your first Satellite",
             icon: "\u{1F6F0}",
             earned: false,
             check: function () { return satelliteLevel >= 1; }
-        }
+        },
     ];
 
     // Milestone thresholds for the progress bar
-    let milestones = [100, 1000, 10000, 100000, 1000000];
+    let milestones = [100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000];
 
     // ===========================
     // VIEW - DOM Element References
@@ -223,9 +300,10 @@ window.addEventListener("load", function () {
             }
 
             btn.innerHTML =
-                "<strong>" + upgrade.name + "</strong>" +
-                "<span class='upgrade-desc'>" + info + "</span>" +
-                "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
+            "<pre class='upgrade-art'>" + upgrade.art + "</pre>" +
+            "<strong>" + upgrade.name + "</strong>" +
+            "<span class='upgrade-desc'>" + info + "</span>" +
+            "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
 
             // Disable if player can't afford it
             if (score < Math.floor(upgrade.cost)) {

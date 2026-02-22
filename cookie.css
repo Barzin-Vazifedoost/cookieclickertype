@@ -81,7 +81,8 @@ section h2 {
     margin-bottom: 15px;
     font-size: 1.2rem;
     border-bottom: 1px solid #2a2f6e;
-    padding-bottom: 8px;
+    padding-bottom: 8px; 
+    text-align: center;
 }
 
 /* ===========================
@@ -224,6 +225,7 @@ section h2 {
     text-align: left;
     font-size: 0.95rem;
     transition: background-color 0.2s ease, border-color 0.2s ease;
+    position: relative;
 }
 
 .upgrade-btn:hover {
@@ -252,18 +254,38 @@ section h2 {
     font-weight: bold;
 }
 
+.upgrade-art {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    line-height: 1.1;
+    color: #ffd700;
+    pointer-events: none;
+    position: absolute;
+    right: 16px;
+    top: 12px;
+}
+
 /* ===========================
    Rewards Area
    =========================== */
 
-#rewards-area {
+   #rewards-area {
     grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Force the section to fill the grid height */
 }
 
 #rewards-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    display: grid;
+    /* Forces exactly 3 columns and 5 rows */
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 15px;
+    justify-items: center;
+    align-items: center;
+    flex-grow: 1; /* Pushes the grid to use all available vertical space */
+    padding: 10px 0;
 }
 
 .reward-badge {
@@ -271,8 +293,8 @@ section h2 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 90px;
-    height: 90px;
+    width: 100px; /* Slightly larger to fill the space better */
+    height: 100px;
     background-color: #1c2060;
     border: 2px solid #2a2f6e;
     border-radius: 12px;
