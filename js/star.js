@@ -358,16 +358,12 @@ window.addEventListener("load", function () {
     * Adds clickPower to score and totalStars, then updates the view and checks rewards.
     */
     function handleStarClick() {
-        // Update model
         score += clickPower;
         totalStars += clickPower;
 
-        // Update view
         updateScoreboard();
         renderUpgrades();
         showClickFeedback();
-
-        // Check for newly earned rewards
         checkRewards();
     }
 
