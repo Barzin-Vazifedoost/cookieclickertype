@@ -1,14 +1,10 @@
 /*
  * Star Collector - Stylesheet
  * CS 1XD3 Lab 5.2: The JS Pair Assignment
- * Authors: [Your Names Here]
- * Date: February 2026
+ * Authors: Erin Sobers, Barzin Vazifedoost
+ * Date: February 27 2026
  * Description: Styles for the Star Collector incremental game.
  */
-
-/* ===========================
-   Reset and Base Styles
-   =========================== */
 
 * {
     margin: 0;
@@ -22,10 +18,6 @@ body {
     color: #e0e0e0;
     min-height: 100vh;
 }
-
-/* ===========================
-   Header
-   =========================== */
 
 header {
     background-color: #131750;
@@ -55,10 +47,6 @@ header h1 {
     background-color: #5055cc;
 }
 
-/* ===========================
-   Main Layout - 4 Areas
-   =========================== */
-
 main {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -84,10 +72,6 @@ section h2 {
     padding-bottom: 8px;
     text-align: center;
 }
-
-/* ===========================
-   Click Area
-   =========================== */
 
 #click-area {
     display: flex;
@@ -136,10 +120,6 @@ section h2 {
     }
 }
 
-/* ===========================
-   Scoreboard
-   =========================== */
-
 #scoreboard {
     display: flex;
     flex-direction: column;
@@ -166,7 +146,6 @@ section h2 {
     color: #ffd700;
 }
 
-/* Progress bar */
 .progress-container {
     margin-top: 5px;
 }
@@ -198,10 +177,6 @@ section h2 {
     margin-top: 3px;
     text-align: right;
 }
-
-/* ===========================
-   Upgrade Area
-   =========================== */
 
 #upgrade-area {
     grid-column: 1 / 2;
@@ -266,28 +241,22 @@ section h2 {
     top: 12px;
 }
 
-/* ===========================
-   Rewards Area
-   =========================== */
 
 #rewards-area {
     grid-column: 2 / 3;
     display: flex;
     flex-direction: column;
     height: 100%;
-    /* Force the section to fill the grid height */
 }
 
 #rewards-list {
     display: grid;
-    /* Forces exactly 3 columns and 5 rows */
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(5, 1fr);
     gap: 15px;
     justify-items: center;
     align-items: center;
     flex-grow: 1;
-    /* Pushes the grid to use all available vertical space */
     padding: 10px 0;
 }
 
@@ -297,7 +266,6 @@ section h2 {
     align-items: center;
     justify-content: center;
     width: 100px;
-    /* Slightly larger to fill the space better */
     height: 100px;
     background-color: #1c2060;
     border: 2px solid #2a2f6e;
@@ -328,10 +296,6 @@ section h2 {
 .reward-badge.earned .reward-name {
     color: #ffd700;
 }
-
-/* ===========================
-   Congratulations Popup
-   =========================== */
 
 .congrats-popup {
     position: fixed;
@@ -369,10 +333,6 @@ section h2 {
         transform: translateX(-50%) translateY(0);
     }
 }
-
-/* ===========================
-   Help Overlay
-   =========================== */
 
 .help-overlay {
     position: fixed;

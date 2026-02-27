@@ -2,8 +2,8 @@
 <!--
     Star Collector - An Incremental Game
     CS 1XD3 Lab 5.2: The JS Pair Assignment
-    Authors: [Your Names Here]
-    Date: February 2026
+    Authors: Erin Sobers, Barzin Vazifedoost
+    Date: February 27 2026
     Description: An incremental game where the user collects stars
     and purchases upgrades to increase their star collection rate.
     All interaction is done through DOM manipulation.
@@ -18,7 +18,6 @@
 </head>
 
 <body>
-    <!-- Congratulations popup -->
     <div id="congrats-popup" class="congrats-popup hidden"></div>
 
     <header>
@@ -26,7 +25,6 @@
         <button id="help-btn">Help</button>
     </header>
 
-    <!-- Help overlay -->
     <div id="help-overlay" class="help-overlay hidden">
         <div class="help-content">
             <h2>How to Play</h2>
@@ -66,14 +64,12 @@
     </div>
 
     <main>
-        <!-- Click Area -->
         <section id="click-area">
             <h2>Click to Collect</h2>
             <div id="star-button">&#11088;</div>
             <p id="click-feedback"></p>
         </section>
 
-        <!-- Scoreboard -->
         <section id="scoreboard">
             <h2>Scoreboard</h2>
             <div class="stat">
@@ -92,7 +88,7 @@
                 <span class="stat-label">Auto-Collect</span>
                 <span id="auto-speed-display" class="stat-value">Off</span>
             </div>
-            <!-- Visual progress bar -->
+
             <div class="progress-container">
                 <div class="progress-label">Progress to next milestone</div>
                 <div class="progress-bar">
@@ -102,13 +98,13 @@
             </div>
         </section>
 
-        <!-- Upgrade Area -->
+
         <section id="upgrade-area">
             <h2>Upgrades</h2>
             <div id="upgrade-list"></div>
         </section>
 
-        <!-- Rewards Area -->
+
         <section id="rewards-area">
             <h2>Rewards</h2>
             <div id="rewards-list"></div>

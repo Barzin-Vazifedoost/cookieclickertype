@@ -1,8 +1,8 @@
 /*
  * Star Collector - An Incremental Game
  * CS 1XD3 Lab 5.2: The JS Pair Assignment
- * Authors: [Your Names Here]
- * Date: February 2026
+ * Authors: Erin Sobers, Barzin Vazifedoost
+ * Date: February 27 2026
  * Description: Game logic for Star Collector. Uses model/view separation:
  *   - Model: state variables track game data
  *   - View: DOM elements display the model to the user
@@ -11,19 +11,15 @@
 
 window.addEventListener("load", function () {
 
-    // ===========================
-    // MODEL - Game State Variables
-    // ===========================
+    let score = 0;           
+    let totalStars = 0;     
+    let clickPower = 1;       
+    let upgradesBought = 0;   
+    let autoClickTimer = null; 
+    let autoClickSpeed = 0;   
+    let satelliteLevel = 0;  
 
-    let score = 0;            // current stars the player has
-    let totalStars = 0;       // lifetime stars earned (for rewards)
-    let clickPower = 1;       // stars gained per click
-    let upgradesBought = 0;   // total upgrades purchased
-    let autoClickTimer = null; // reference to the auto-click interval
-    let autoClickSpeed = 0;   // current auto-click interval in ms (0 = off)
-    let satelliteLevel = 0;   // how many times satellite has been purchased
-
-    // Upgrade definitions (model)
+    // Upgrade definitions
     // Each upgrade tracks its own cost which increases after purchase
     let upgrades = [
         {
@@ -104,7 +100,7 @@ window.addEventListener("load", function () {
         }
     ];
 
-    // Reward definitions (model)
+    // Reward definitions
     // earned flag tracks whether each reward has been achieved
     let rewards = [
         {
@@ -205,44 +201,22 @@ window.addEventListener("load", function () {
         },
     ];
 
-    // Milestone thresholds for the progress bar
     let milestones = [100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000];
 
-    // ===========================
-    // VIEW - DOM Element References
-    // ===========================
-
     let scoreDisplay = document.getElementById("score-display");
-
     let clickPowerDisplay = document.getElementById("click-power-display");
-
     let upgradesCountDisplay = document.getElementById("upgrades-count-display");
-
     let autoSpeedDisplay = document.getElementById("auto-speed-display");
-
     let progressFill = document.getElementById("progress-fill");
-
     let progressText = document.getElementById("progress-text");
-
     let upgradeList = document.getElementById("upgrade-list");
-
     let rewardsList = document.getElementById("rewards-list");
-
     let starButton = document.getElementById("star-button");
-
     let clickFeedback = document.getElementById("click-feedback");
-
     let helpBtn = document.getElementById("help-btn");
-
     let helpOverlay = document.getElementById("help-overlay");
-
     let helpCloseBtn = document.getElementById("help-close-btn");
-
     let congratsPopup = document.getElementById("congrats-popup");
-
-    // ===========================
-    // VIEW - Render Functions
-    // ===========================
 
     /**
     * Updates all scoreboard displays to reflect the current model state.
@@ -267,7 +241,6 @@ window.addEventListener("load", function () {
     * Reads totalStars and finds the nearest upcoming milestone to display progress.
     */
     function updateProgressBar() {
-        // Find the next milestone the player hasn't reached
         let nextMilestone = milestones[milestones.length - 1];
         let prevMilestone = 0;
         for (let i = 0; i < milestones.length; i++) {
@@ -287,10 +260,10 @@ window.addEventListener("load", function () {
     }
 
     /**
-    * Renders all upgrade buttons into the upgrade list from the upgrades array. Clears and rebuilds the list each call to reflect current costs and affordability.
+    * Renders all upgrade buttons into the upgrade list from the upgrades array. 
+    * Clears and rebuilds the list each call to reflect current costs and affordability.
     */
     function renderUpgrades() {
-        // Clear existing buttons
         upgradeList.innerHTML = "";
 
         for (let i = 0; i < upgrades.length; i++) {
@@ -299,7 +272,6 @@ window.addEventListener("load", function () {
             btn.className = "upgrade-btn";
             btn.id = "upgrade-" + upgrade.id;
 
-            // Show different info for auto vs click upgrades
             let info = upgrade.description;
             if (upgrade.type === "auto" && satelliteLevel > 0) {
                 info = "Speeds up auto-collect!";
@@ -311,12 +283,10 @@ window.addEventListener("load", function () {
                 "<span class='upgrade-desc'>" + info + "</span>" +
                 "<span class='upgrade-cost'>Cost: " + Math.floor(upgrade.cost) + " stars</span>";
 
-            // Disable if player can't afford it
             if (score < Math.floor(upgrade.cost)) {
                 btn.classList.add("disabled");
             }
 
-            // Use a closure to capture the current index
             (function (index) {
                 btn.addEventListener("click", function () {
                     purchaseUpgrade(index);
@@ -379,14 +349,9 @@ window.addEventListener("load", function () {
     function showClickFeedback() {
         clickFeedback.textContent = "+" + clickPower;
         clickFeedback.classList.remove("fade");
-        // Force reflow so the animation restarts
         void clickFeedback.offsetWidth;
         clickFeedback.classList.add("fade");
     }
-
-    // ===========================
-    // CONTROLLER - Game Logic
-    // ===========================
 
     /**
     * Handles a player click on the star button.
@@ -416,32 +381,25 @@ window.addEventListener("load", function () {
         let upgrade = upgrades[index];
         let cost = Math.floor(upgrade.cost);
 
-        // Check if player can afford it
         if (score < cost) {
             return;
         }
 
-        // Deduct cost from model
         score -= cost;
 
-        // Apply upgrade effect to model
         if (upgrade.type === "click") {
             clickPower += upgrade.power;
         } else if (upgrade.type === "auto") {
             satelliteLevel++;
-            // Determine speed based on satellite level
             let newSpeed = Math.max(5, 2000 / Math.pow(satelliteLevel, 0.97));
 
-            // Clear existing timer (only one auto-click timer allowed)
             if (autoClickTimer !== null) {
                 clearInterval(autoClickTimer);
             }
 
             autoClickSpeed = newSpeed;
 
-            // Start new auto-click timer
             autoClickTimer = setInterval(function () {
-                // Auto-click applies current click power
                 score += clickPower;
                 totalStars += clickPower;
                 updateScoreboard();
@@ -449,11 +407,9 @@ window.addEventListener("load", function () {
             }, autoClickSpeed);
         }
 
-        // Increase the cost for next purchase
         upgrade.cost = upgrade.cost * upgrade.costMultiplier;
         upgradesBought++;
 
-        // Update view
         updateScoreboard();
         renderUpgrades();
         checkRewards();
@@ -473,10 +429,6 @@ window.addEventListener("load", function () {
         }
     }
 
-    // ===========================
-    // EVENT LISTENERS
-    // ===========================
-
     starButton.addEventListener("click", handleStarClick);
 
     helpBtn.addEventListener("click", function () {
@@ -487,16 +439,11 @@ window.addEventListener("load", function () {
         helpOverlay.classList.add("hidden");
     });
 
-    // Close help if clicking outside the help content
     helpOverlay.addEventListener("click", function (event) {
         if (event.target === helpOverlay) {
             helpOverlay.classList.add("hidden");
         }
     });
-
-    // ===========================
-    // INITIAL RENDER
-    // ===========================
 
     updateScoreboard();
     renderUpgrades();
